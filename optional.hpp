@@ -199,7 +199,11 @@ template <class T> inline constexpr typename std::remove_reference<T>::type&& co
 #if defined NDEBUG
 # define TR2_OPTIONAL_ASSERTED_EXPRESSION(CHECK, EXPR) (EXPR)
 #else
+# if defined __clang__
+# define TR2_OPTIONAL_ASSERTED_EXPRESSION(CHECK, EXPR) ((CHECK) ? (EXPR) : ([]{assert(#CHECK != "");}(), (EXPR)))
+#else
 # define TR2_OPTIONAL_ASSERTED_EXPRESSION(CHECK, EXPR) ((CHECK) ? (EXPR) : ([]{assert(!#CHECK);}(), (EXPR)))
+#endif
 #endif
 
 
@@ -524,16 +528,22 @@ public:
   }
 
   constexpr T const& value() const& {
-    return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
+    //return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
+    if (!initialized()) abort();
+    return contained_val();
   }
   
   OPTIONAL_MUTABLE_CONSTEXPR T& value() & {
-    return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
+    //return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
+    if (!initialized()) abort();
+    return contained_val();
   }
   
   OPTIONAL_MUTABLE_CONSTEXPR T&& value() && {
-    if (!initialized()) throw bad_optional_access("bad optional access");
-	return std::move(contained_val());
+    //if (!initialized()) throw bad_optional_access("bad optional access");
+    //return std::move(contained_val());
+    if (!initialized()) abort();
+    return std::move(contained_val());
   }
   
 # else
@@ -688,7 +698,9 @@ public:
   }
   
   constexpr T& value() const {
-    return ref ? *ref : (throw bad_optional_access("bad optional access"), *ref);
+    //return ref ? *ref : (throw bad_optional_access("bad optional access"), *ref);
+    if (!ref) abort();
+    return *ref;
   }
   
   explicit constexpr operator bool() const noexcept {
