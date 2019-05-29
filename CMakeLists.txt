@@ -1,16 +1,23 @@
-project(optional)
 cmake_minimum_required(VERSION 2.8)
-enable_testing()
-
-set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra")
+project(optional)
 
 add_library(optional INTERFACE)
 target_include_directories(optional
     INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
     )
 
-add_executable(test_optional test_optional.cpp)
-add_executable(test_type_traits test_type_traits.cpp)
+option(optional_ENABLE_TESTS "Enable unit tests for Optional" ON)
 
-add_test(test_optional test_optional)
-add_test(test_type_traits test_type_traits)
+if(optional_ENABLE_TESTS)
+  enable_testing()
+
+  add_executable(test_optional test_optional.cpp)
+  set_target_properties(test_optional PROPERTIES CXX_STANDARD 11)
+  set_target_properties(test_optional PROPERTIES COMPILE_FLAGS "-Wall -Wextra")
+  add_test(test_optional test_optional)
+
+  add_executable(test_type_traits test_type_traits.cpp)
+  set_target_properties(test_type_traits PROPERTIES CXX_STANDARD 11)
+  set_target_properties(test_type_traits PROPERTIES COMPILE_FLAGS "-Wall -Wextra")
+  add_test(test_type_traits test_type_traits)
+endif()
