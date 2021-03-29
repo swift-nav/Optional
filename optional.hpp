@@ -26,13 +26,13 @@
 #   elif (__GNUC__ > 4)
 #     define TR2_OPTIONAL_GCC_4_8_AND_HIGHER___
 #   endif
-#
+
 #   if (__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)
 #     define TR2_OPTIONAL_GCC_4_7_AND_HIGHER___
 #   elif (__GNUC__ > 4)
 #     define TR2_OPTIONAL_GCC_4_7_AND_HIGHER___
 #   endif
-#
+
 #   if (__GNUC__ == 4) && (__GNUC_MINOR__ == 8) && (__GNUC_PATCHLEVEL__ >= 1)
 #     define TR2_OPTIONAL_GCC_4_8_1_AND_HIGHER___
 #   elif (__GNUC__ == 4) && (__GNUC_MINOR__ >= 9)
@@ -41,7 +41,7 @@
 #     define TR2_OPTIONAL_GCC_4_8_1_AND_HIGHER___
 #   endif
 # endif
-#
+
 # if defined __clang_major__
 #   if (__clang_major__ == 3 && __clang_minor__ >= 5)
 #     define TR2_OPTIONAL_CLANG_3_5_AND_HIGHTER_
@@ -54,7 +54,7 @@
 #     define TR2_OPTIONAL_CLANG_3_4_2_AND_HIGHER_
 #   endif
 # endif
-#
+
 # if defined _MSC_VER
 #   if (_MSC_VER >= 1900)
 #     define TR2_OPTIONAL_MSVC_2015_AND_HIGHER___
@@ -90,7 +90,7 @@
 #   define OPTIONAL_HAS_MOVE_ACCESSORS 0
 # endif
 
-# // In C++11 constexpr implies const, so we need to make non-const members also non-constexpr
+// In C++11 constexpr implies const, so we need to make non-const members also non-constexpr
 # if (defined __cplusplus) && (__cplusplus == 201103L)
 #   define OPTIONAL_MUTABLE_CONSTEXPR
 # else
@@ -236,6 +236,19 @@ T* static_addressof(T& ref)
 template <class U>
 constexpr U convert(U v) { return v; }
   
+
+namespace swap_ns
+{
+  using std::swap;
+    
+  template <class T>
+  void adl_swap(T& t, T& u) noexcept(noexcept(swap(t, u)))
+  {
+    swap(t, u);
+  }
+
+} // namespace swap_ns
+
 } // namespace detail
 
 
@@ -486,7 +499,8 @@ public:
   }
   
   // 20.5.4.4, Swap
-  void swap(optional<T>& rhs) noexcept(is_nothrow_move_constructible<T>::value && noexcept(swap(declval<T&>(), declval<T&>())))
+  void swap(optional<T>& rhs) noexcept(is_nothrow_move_constructible<T>::value
+                                       && noexcept(detail_::swap_ns::adl_swap(declval<T&>(), declval<T&>())))
   {
     if      (initialized() == true  && rhs.initialized() == false) { rhs.initialize(std::move(**this)); clear(); }
     else if (initialized() == false && rhs.initialized() == true)  { initialize(std::move(*rhs)); rhs.clear(); }
