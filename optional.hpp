@@ -196,10 +196,16 @@ template <class T> inline constexpr typename std::remove_reference<T>::type&& co
 }
 
 
+#if defined TR2_OPTIONAL_ASSERT_ON_BAD_STATE_
+# define TR2_OPTIONAL_SIGNAL_BAD_STATE(ERRMSG) (assert(false && ERRMSG))
+#else
+# define TR2_OPTIONAL_SIGNAL_BAD_STATE(ERRMSG) (throw bad_optional_access(ERRMSG))
+#endif
+
 #if defined NDEBUG
 # define TR2_OPTIONAL_ASSERTED_EXPRESSION(CHECK, EXPR) (EXPR)
 #else
-# define TR2_OPTIONAL_ASSERTED_EXPRESSION(CHECK, EXPR) ((CHECK) ? (EXPR) : ([]{assert(!#CHECK);}(), (EXPR)))
+# define TR2_OPTIONAL_ASSERTED_EXPRESSION(CHECK, EXPR) ((CHECK) ? (EXPR) : (TR2_OPTIONAL_SIGNAL_BAD_STATE("Bad optional state. " #CHECK), (EXPR)))
 #endif
 
 
@@ -524,15 +530,15 @@ public:
   }
 
   constexpr T const& value() const& {
-    return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
+    return initialized() ? contained_val() : (TR2_OPTIONAL_SIGNAL_BAD_STATE("bad optional access"), contained_val());
   }
   
   OPTIONAL_MUTABLE_CONSTEXPR T& value() & {
-    return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
+    return initialized() ? contained_val() : (TR2_OPTIONAL_SIGNAL_BAD_STATE("bad optional access"), contained_val());
   }
   
   OPTIONAL_MUTABLE_CONSTEXPR T&& value() && {
-    if (!initialized()) throw bad_optional_access("bad optional access");
+    if (!initialized()) TR2_OPTIONAL_SIGNAL_BAD_STATE("bad optional access");
 	return std::move(contained_val());
   }
   
@@ -553,11 +559,11 @@ public:
   }
   
   constexpr T const& value() const {
-    return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
+    return initialized() ? contained_val() : (TR2_OPTIONAL_SIGNAL_BAD_STATE("bad optional access"), contained_val());
   }
   
   T& value() {
-    return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
+    return initialized() ? contained_val() : (TR2_OPTIONAL_SIGNAL_BAD_STATE("bad optional access"), contained_val());
   }
   
 # endif
@@ -688,7 +694,7 @@ public:
   }
   
   constexpr T& value() const {
-    return ref ? *ref : (throw bad_optional_access("bad optional access"), *ref);
+    return ref ? *ref : (TR2_OPTIONAL_SIGNAL_BAD_STATE("bad optional access"), *ref);
   }
   
   explicit constexpr operator bool() const noexcept {
@@ -1048,5 +1054,6 @@ namespace std
 
 # undef TR2_OPTIONAL_REQUIRES
 # undef TR2_OPTIONAL_ASSERTED_EXPRESSION
+# undef TR2_OPTIONAL_SIGNAL_BAD_STATE
 
 # endif //___OPTIONAL_HPP___
