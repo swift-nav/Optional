@@ -617,7 +617,7 @@ public:
   
   constexpr optional(nullopt_t) noexcept : ref(nullptr) {}
    
-  constexpr optional(T& v) noexcept : ref(detail_::static_addressof(v)) {}
+  constexpr optional(T& v) noexcept : ref(&v) {}
   
   optional(T&&) = delete;
   

@@ -1193,40 +1193,43 @@ TEST(arrow_operator)
   assert (on->n == 2);
 };
 
-TEST(arrow_wit_optional_ref)
-{
-  using namespace std::experimental;
-  
-  Combined c{1, 2};
-  optional<Combined&> oc = c;
-  assert (oc);
-  assert (oc->m == 1);
-  assert (oc->n == 2);
-  
-  Nasty n{1, 2};
-  Nasty m{3, 4};
-  Nasty p{5, 6};
-  
-  optional<Nasty&> on{n};
-  assert (on);
-  assert (on->m == 1);
-  assert (on->n == 2);
-  
-  on = {m};
-  assert (on);
-  assert (on->m == 3);
-  assert (on->n == 4);
-  
-  on.emplace(p);
-  assert (on);
-  assert (on->m == 5);
-  assert (on->n == 6);
-  
-  optional<Nasty&> om{in_place, n};
-  assert (om);
-  assert (om->m == 1);
-  assert (om->n == 2);
-};
+// This test was commented out because support for the feature: "make operator->
+// conditionally constexpr based on whether T::operator& is overloaded" was
+// disabled.
+//TEST(arrow_wit_optional_ref)
+//{
+//  using namespace std::experimental;
+//
+//  Combined c{1, 2};
+//  optional<Combined&> oc = c;
+//  assert (oc);
+//  assert (oc->m == 1);
+//  assert (oc->n == 2);
+//
+//  Nasty n{1, 2};
+//  Nasty m{3, 4};
+//  Nasty p{5, 6};
+//
+//  optional<Nasty&> on{n};
+//  assert (on);
+//  assert (on->m == 1);
+//  assert (on->n == 2);
+//
+//  on = {m};
+//  assert (on);
+//  assert (on->m == 3);
+//  assert (on->n == 4);
+//
+//  on.emplace(p);
+//  assert (on);
+//  assert (on->m == 5);
+//  assert (on->n == 6);
+//
+//  optional<Nasty&> om{in_place, n};
+//  assert (om);
+//  assert (om->m == 1);
+//  assert (om->n == 2);
+//};
 
 TEST(no_dangling_reference_in_value)
 {
