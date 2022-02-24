@@ -616,9 +616,13 @@ public:
   constexpr optional() noexcept : ref(nullptr) {}
   
   constexpr optional(nullopt_t) noexcept : ref(nullptr) {}
-   
-  constexpr optional(T& v) noexcept : ref(&v) {}
-  
+
+#ifdef OPTIONAL_CONDITIONAL_REF
+  constexpr optional(T& v) noexcept : ref(detail_::static_addressof(v)) {}
+#else
+  optional(T& v) noexcept : ref(std::addressof(v)) {}
+#endif
+
   optional(T&&) = delete;
   
   constexpr optional(const optional& rhs) noexcept : ref(rhs.ref) {}
