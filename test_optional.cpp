@@ -1193,7 +1193,6 @@ TEST(arrow_operator)
   assert (on->n == 2);
 };
 
-#ifdef OPTIONAL_CONDITIONAL_REF
 TEST(arrow_wit_optional_ref)
 {
   using namespace std::experimental;
@@ -1228,7 +1227,6 @@ TEST(arrow_wit_optional_ref)
   assert (om->m == 1);
   assert (om->n == 2);
 };
-#endif
 
 TEST(no_dangling_reference_in_value)
 {
