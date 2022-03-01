@@ -369,7 +369,11 @@ class optional : private OptionalBase<T>
 
   constexpr bool initialized() const noexcept { return OptionalBase<T>::init_; }
   typename std::remove_const<T>::type* dataptr() {  return std::addressof(OptionalBase<T>::storage_.value_); }
+#ifdef OPTIONAL_CONDITIONAL_REF
   constexpr const T* dataptr() const { return detail_::static_addressof(OptionalBase<T>::storage_.value_); }
+#else
+  const T* dataptr() const { return std::addressof(OptionalBase<T>::storage_.value_); }
+#endif
   
 # if OPTIONAL_HAS_THIS_RVALUE_REFS == 1
   constexpr const T& contained_val() const& { return OptionalBase<T>::storage_.value_; }
@@ -630,9 +634,13 @@ public:
   constexpr optional() noexcept : ref(nullptr) {}
   
   constexpr optional(nullopt_t) noexcept : ref(nullptr) {}
-   
+
+#ifdef OPTIONAL_CONDITIONAL_REF
   constexpr optional(T& v) noexcept : ref(detail_::static_addressof(v)) {}
-  
+#else
+  optional(T& v) noexcept : ref(std::addressof(v)) {}
+#endif
+
   optional(T&&) = delete;
   
   constexpr optional(const optional& rhs) noexcept : ref(rhs.ref) {}
