@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
 project(optional)
 
-add_library(optional INTERFACE)
-target_include_directories(optional
+add_library(akrzemi1_optional INTERFACE)
+add_library(optional ALIAS akrzemi1_optional)
+add_library(akrzemi1::optional ALIAS akrzemi1_optional)
+target_include_directories(akrzemi1_optional
     INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
     )
 
